@@ -20,14 +20,21 @@
             margin: 20px auto;
             padding: 10px;
             background: #ffffff; /* White background for posts */
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0; /* No rounded corners */
+            box-shadow: none; /* No shadow */
         }
         .post {
             margin: 10px 0;
             padding: 10px;
-            border: 1px solid #ddd; /* Light border */
-            border-radius: 5px;
+            background: #eaeaea; /* Light gray background for posts */
+            /* Rough edges effect */
+            border-radius: 0; /* No rounded corners */
+            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0); /* Create rough edges */
+            border: none; /* Remove border */
+            transition: background 0.3s; /* Smooth background change */
+        }
+        .post:hover {
+            background: #d0d0d0; /* Slightly darker on hover */
         }
         form {
             position: fixed; /* Fix the form to the bottom */
@@ -92,15 +99,21 @@
         document.getElementById('postForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the form from submitting normally
             const postContent = document.getElementById('postContent').value;
+            
+            const timestamp = new Date().toLocaleString();
+            const formattedPost = `${timestamp}: ${postContent}`;
 
             // Save the new post in local storage
             const posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.push(postContent);
+            posts.push(formattedPost);
             localStorage.setItem('posts', JSON.stringify(posts));
 
             // Clear the textarea and reload posts
             document.getElementById('postContent').value = '';
             loadPosts();
+
+            // Optional: Display a confirmation message
+            alert("Post added!");
         });
 
         // Load existing posts when the page is loaded
