@@ -62,13 +62,15 @@
             text-align: center;
             position: relative;
         }
-        input, textarea {
-            width: 300px; /* Reduced the width */
+        textarea {
+            width: 300px; /* Reduced width */
             padding: 8px;
             margin: 5px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
             background: #fef5d7;
+            resize: none; /* Disable resizing */
+            overflow-y: hidden; /* Hide scrollbar */
         }
         button {
             padding: 10px 15px;
@@ -106,7 +108,7 @@
     <form id="postForm" style="display: none;" onsubmit="return false;">
         <label class="paperclip-btn" for="fileInput">📎</label>
         <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="displayFileInfo()">
-        <textarea id="postContent" placeholder="Type your message here..." required></textarea><br>
+        <textarea id="postContent" placeholder="Type your message here..." rows="2" required></textarea><br>
         <span class="file-info" id="fileInfo"></span><br>
         <button type="submit" onclick="submitPost()">Post</button>
     </form>
@@ -201,6 +203,12 @@
                 event.preventDefault(); // Prevents adding a newline
                 submitPost();
             }
+        });
+
+        // Auto-expand the text area as you type
+        document.getElementById('postContent').addEventListener('input', function() {
+            this.style.height = 'auto'; // Reset height to auto to allow shrinking
+            this.style.height = this.scrollHeight + 'px'; // Set height based on scrollHeight
         });
 
         // Check if username is already stored and load posts accordingly
