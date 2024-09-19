@@ -37,6 +37,7 @@
             background: #fcebbd; /* Slightly darker yellow on hover */
         }
         .reply {
+            position: relative; /* Set position relative for arrow placement */
             margin-top: 5px;
             margin-left: 20px; /* Indent to the right */
             padding: 5px;
@@ -44,6 +45,16 @@
             border: none; /* No border */
             border-radius: 0; /* Sharp edges */
             clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0); /* Rough edges */
+        }
+        .reply::before {
+            content: ''; /* Create an empty content */
+            position: absolute;
+            left: -15px; /* Position to the left of the reply */
+            top: 50%; /* Center vertically */
+            transform: translateY(-50%); /* Adjust for perfect centering */
+            border: solid transparent; /* Create a transparent border */
+            border-width: 8px; /* Size of the arrow */
+            border-right-color: #fef5d7; /* Arrow color matches the reply background */
         }
         form {
             margin: 20px auto;
