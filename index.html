@@ -80,89 +80,20 @@
         button:hover {
             background-color: #45a049;
         }
-        .login-link {
-            cursor: pointer;
-            color: blue;
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
-    <div id="loginContainer" style="display: none;">
-        <h1>Login</h1>
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <button type="submit">Sign In</button>
-        </form>
-        <input type="text" id="verificationCode" placeholder="Enter your code" style="display: none;">
-        <button id="verifyButton" style="display: none;">Verify Code</button>
-        <p class="login-link" id="registerLink">Register here</p>
-    </div>
-
-    <div id="mainContainer" style="display: none;">
-        <h1>Internet Archive</h1>
-        <div id="postsContainer"></div>
-        <form id="postForm">
-            <textarea id="postContent" placeholder="Type your message here..." required></textarea><br>
-            <button type="submit">Post</button>
-        </form>
-        <footer>
-            <p style="text-align: center;">Created by Daniil Sorokin</p>
-        </footer>
-    </div>
+    <h1>Internet Archive</h1>
+    <div id="postsContainer"></div>
+    <form id="postForm">
+        <textarea id="postContent" placeholder="Type your message here..." required></textarea><br>
+        <button type="submit">Post</button>
+    </form>
+    <footer>
+        <p style="text-align: center;">Created by Daniil Sorokin</p>
+    </footer>
 
     <script>
-        const users = {}; // Simulated user database
-        let verificationCode = null; // Code to verify user
-        let currentUsername = null; // Track logged in username
-
-        // Check if user is logged in
-        const isLoggedIn = localStorage.getItem('loggedIn');
-
-        if (isLoggedIn) {
-            document.getElementById('mainContainer').style.display = 'block';
-            loadPosts();
-        } else {
-            document.getElementById('loginContainer').style.display = 'block';
-        }
-
-        // Event listener for login form submission
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-
-            if (!users[username]) {
-                users[username] = { email: email, loggedIn: false }; // Register user
-            }
-
-            // Generate and send verification code
-            verificationCode = Math.floor(100000 + Math.random() * 900000);
-            alert(`Verification code sent to ${email}: ${verificationCode}`); // Simulating email sending
-
-            // Show verification input
-            document.getElementById('verificationCode').style.display = 'block';
-            document.getElementById('verifyButton').style.display = 'block';
-            currentUsername = username;
-        });
-
-        // Handle verification code
-        document.getElementById('verifyButton').addEventListener('click', function() {
-            const code = document.getElementById('verificationCode').value;
-
-            if (verificationCode && Number(code) === verificationCode) {
-                users[currentUsername].loggedIn = true;
-                localStorage.setItem('loggedIn', true);
-                localStorage.setItem('currentUsername', currentUsername);
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'block';
-                loadPosts();
-            } else {
-                alert('Invalid code!');
-            }
-        });
-
         // Function to load posts from local storage
         function loadPosts() {
             const postsContainer = document.getElementById('postsContainer');
@@ -204,10 +135,9 @@
         document.getElementById('postForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const postContent = document.getElementById('postContent').value;
-            const username = localStorage.getItem('currentUsername');
-            const timestamp = new Date().toLocaleString();
+
             const formattedPost = {
-                content: `${timestamp} - ${username}: ${postContent}`,
+                content: postContent,
                 replies: []
             };
 
@@ -218,6 +148,9 @@
             document.getElementById('postContent').value = '';
             loadPosts();
         });
+
+        // Load existing posts when the page is loaded
+        window.onload = loadPosts;
     </script>
 </body>
 </html>
