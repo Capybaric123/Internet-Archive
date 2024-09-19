@@ -1,2 +1,62 @@
-https://capybaric123.githhub.io/
-<h1>Test<h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Forum</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .post { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        form { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My Forum</h1>
+
+    <form id="postForm">
+        <textarea id="postContent" rows="4" cols="50" placeholder="Type your message here..." required></textarea><br>
+        <button type="submit">Post</button>
+    </form>
+
+    <h2>Recent Posts</h2>
+    <div id="postsContainer"></div>
+
+    <footer>
+        <p>Created by Your Name</p>
+    </footer>
+
+    <script>
+        // Function to load posts from local storage
+        function loadPosts() {
+            const postsContainer = document.getElementById('postsContainer');
+            postsContainer.innerHTML = ''; // Clear existing posts
+
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.classList.add('post');
+                postElement.innerText = post;
+                postsContainer.appendChild(postElement);
+            });
+        }
+
+        // Event listener for form submission
+        document.getElementById('postForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+            const postContent = document.getElementById('postContent').value;
+
+            // Save the new post in local storage
+            const posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.push(postContent);
+            localStorage.setItem('posts', JSON.stringify(posts));
+
+            // Clear the textarea and reload posts
+            document.getElementById('postContent').value = '';
+            loadPosts();
+        });
+
+        // Load existing posts when the page is loaded
+        window.onload = loadPosts;
+    </script>
+</body>
+</html>
