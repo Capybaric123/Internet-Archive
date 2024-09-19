@@ -60,6 +60,7 @@
             margin: 20px auto;
             max-width: 800px;
             text-align: center;
+            position: relative;
         }
         input, textarea {
             width: 300px; /* Reduced the width */
@@ -80,6 +81,18 @@
         button:hover {
             background-color: #45a049;
         }
+        .paperclip-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        .file-info {
+            font-size: 12px;
+            color: #555;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -90,9 +103,12 @@
         <button onclick="saveUsername()">Submit</button>
     </div>
     <div id="postsContainer" style="display: none;"></div>
-    <form id="postForm" style="display: none;">
+    <form id="postForm" style="display: none;" onsubmit="return false;">
+        <label class="paperclip-btn" for="fileInput">📎</label>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="displayFileInfo()">
         <textarea id="postContent" placeholder="Type your message here..." required></textarea><br>
-        <button type="submit">Post</button>
+        <span class="file-info" id="fileInfo"></span><br>
+        <button type="submit" onclick="submitPost()">Post</button>
     </form>
     <footer>
         <p style="text-align: center;">Created by Daniil Sorokin</p>
@@ -105,34 +121,37 @@
             postsContainer.innerHTML = '';
 
             const posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.forEach((post, index) => {
+            posts.forEach((post) => {
                 const postElement = document.createElement('div');
                 postElement.classList.add('post');
-                postElement.innerText = post.content;
-                postElement.onclick = () => showReplyForm(index); // Attach click event to reply
-                postsContainer.appendChild(postElement);
 
-                // Display replies if they exist
-                if (post.replies && post.replies.length > 0) {
-                    post.replies.forEach(reply => {
-                        const replyElement = document.createElement('div');
-                        replyElement.classList.add('reply');
-                        replyElement.innerText = reply;
-                        postsContainer.appendChild(replyElement);
-                    });
+                const timeElement = document.createElement('div');
+                timeElement.innerHTML = `<strong>Posted at:</strong> ${new Date(post.time).toLocaleString()}`;
+                postElement.innerHTML = post.content;
+
+                postElement.appendChild(timeElement);
+
+                // If a photo is attached, display it
+                if (post.photo) {
+                    const img = document.createElement('img');
+                    img.src = post.photo;
+                    img.style.maxWidth = '100%';
+                    postElement.appendChild(img);
                 }
+
+                postsContainer.appendChild(postElement);
             });
         }
 
-        // Show reply form for a specific post
-        function showReplyForm(postIndex) {
-            const replyContent = prompt("Type your reply:");
-            if (replyContent) {
-                const posts = JSON.parse(localStorage.getItem('posts')) || [];
-                posts[postIndex].replies = posts[postIndex].replies || [];
-                posts[postIndex].replies.push(replyContent);
-                localStorage.setItem('posts', JSON.stringify(posts));
-                loadPosts(); // Reload posts to display the new reply
+        // Display attached file info (file name and size)
+        function displayFileInfo() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const fileSize = (file.size / 1024).toFixed(2); // File size in KB
+                const fileInfo = document.getElementById('fileInfo');
+                fileInfo.innerHTML = `Attached: ${file.name} (${fileSize} KB)`;
             }
         }
 
@@ -150,23 +169,38 @@
             }
         }
 
-        // Event listener for form submission
-        document.getElementById('postForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        // Function to submit a post
+        function submitPost() {
             const postContent = document.getElementById('postContent').value;
             const username = localStorage.getItem('username');
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
 
-            const formattedPost = {
-                content: `${username}: ${postContent}`,
-                replies: []
-            };
+            if (postContent) {
+                const formattedPost = {
+                    content: `${username}: ${postContent}`,
+                    time: new Date(),
+                    photo: file ? URL.createObjectURL(file) : null // Attach photo if present
+                };
 
-            const posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.push(formattedPost);
-            localStorage.setItem('posts', JSON.stringify(posts));
+                const posts = JSON.parse(localStorage.getItem('posts')) || [];
+                posts.push(formattedPost);
+                localStorage.setItem('posts', JSON.stringify(posts));
 
-            document.getElementById('postContent').value = '';
-            loadPosts();
+                document.getElementById('postContent').value = ''; // Clear post content
+                document.getElementById('fileInput').value = ''; // Clear file input
+                document.getElementById('fileInfo').innerHTML = ''; // Clear file info
+
+                loadPosts(); // Reload posts to display the new post
+            }
+        }
+
+        // Make pressing "Enter" submit the post
+        document.getElementById('postContent').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevents adding a newline
+                submitPost();
+            }
         });
 
         // Check if username is already stored and load posts accordingly
