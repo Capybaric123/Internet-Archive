@@ -31,21 +31,30 @@
             border-radius: 0; /* No rounded corners */
             clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0); /* Rough edges */
             transition: background 0.3s;
+            cursor: pointer; /* Change cursor to pointer */
         }
         .post:hover {
             background: #fcebbd; /* Slightly darker yellow on hover */
         }
+        .reply {
+            margin-top: 10px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+        }
         form {
             margin: 20px auto;
-            max-width: 300px;
+            max-width: 800px; /* Same width as posts */
             text-align: center;
         }
-        input {
-            width: 100%;
+        input, textarea {
+            width: calc(100% - 22px); /* Full width minus padding */
             padding: 10px;
             margin: 5px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
+            background: #fef5d7; /* Light yellow background for textarea */
         }
         button {
             padding: 10px 15px;
@@ -118,12 +127,35 @@
             postsContainer.innerHTML = '';
 
             const posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.forEach(post => {
+            posts.forEach((post, index) => {
                 const postElement = document.createElement('div');
                 postElement.classList.add('post');
-                postElement.innerText = post;
+                postElement.innerText = post.content;
+                postElement.onclick = () => showReplyForm(index); // Attach click event to reply
                 postsContainer.appendChild(postElement);
+
+                // Display replies if they exist
+                if (post.replies && post.replies.length > 0) {
+                    post.replies.forEach(reply => {
+                        const replyElement = document.createElement('div');
+                        replyElement.classList.add('reply');
+                        replyElement.innerText = reply;
+                        postsContainer.appendChild(replyElement);
+                    });
+                }
             });
+        }
+
+        // Show reply form for a specific post
+        function showReplyForm(postIndex) {
+            const replyContent = prompt("Type your reply:");
+            if (replyContent) {
+                const posts = JSON.parse(localStorage.getItem('posts')) || [];
+                posts[postIndex].replies = posts[postIndex].replies || [];
+                posts[postIndex].replies.push(replyContent);
+                localStorage.setItem('posts', JSON.stringify(posts));
+                loadPosts(); // Reload posts to display the new reply
+            }
         }
 
         // Event listener for form submission
@@ -132,7 +164,10 @@
             const postContent = document.getElementById('postContent').value;
             const username = localStorage.getItem('currentUsername');
             const timestamp = new Date().toLocaleString();
-            const formattedPost = `${timestamp} - ${username}: ${postContent}`;
+            const formattedPost = {
+                content: `${timestamp} - ${username}: ${postContent}`,
+                replies: []
+            };
 
             const posts = JSON.parse(localStorage.getItem('posts')) || [];
             posts.push(formattedPost);
