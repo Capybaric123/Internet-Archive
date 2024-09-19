@@ -71,6 +71,7 @@
             background: #fef5d7;
             resize: none; /* Disable resizing */
             overflow-y: hidden; /* Hide scrollbar */
+            min-height: 40px; /* Minimum height for the text area */
         }
         button {
             padding: 10px 15px;
@@ -178,7 +179,7 @@
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
 
-            if (postContent) {
+            if (postContent.trim()) { // Check if the post content is not empty
                 const formattedPost = {
                     content: `${username}: ${postContent}`,
                     time: new Date(),
