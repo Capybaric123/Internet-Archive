@@ -26,48 +26,48 @@
         .post {
             margin: 10px 0;
             padding: 10px;
-            background: #fef5d7; /* Light yellow background */
-            border: none; /* No border */
-            border-radius: 0; /* No rounded corners */
-            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0); /* Rough edges */
+            background: #fef5d7;
+            border: none;
+            border-radius: 0;
+            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
             transition: background 0.3s;
-            cursor: pointer; /* Change cursor to pointer */
+            cursor: pointer;
         }
         .post:hover {
-            background: #fcebbd; /* Slightly darker yellow on hover */
+            background: #fcebbd;
         }
         .reply {
-            position: relative; /* Set position relative for arrow placement */
+            position: relative;
             margin-top: 5px;
-            margin-left: 20px; /* Indent to the right */
+            margin-left: 20px;
             padding: 5px;
-            background: #fef5d7; /* Light yellow background */
-            border: none; /* No border */
-            border-radius: 0; /* Sharp edges */
-            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0); /* Rough edges */
+            background: #fef5d7;
+            border: none;
+            border-radius: 0;
+            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
         }
         .reply::before {
-            content: ''; /* Create an empty content */
+            content: '';
             position: absolute;
-            left: -15px; /* Position to the left of the reply */
-            top: 50%; /* Center vertically */
-            transform: translateY(-50%); /* Adjust for perfect centering */
-            border: solid transparent; /* Create a transparent border */
-            border-width: 8px; /* Size of the arrow */
-            border-right-color: #fef5d7; /* Arrow color matches the reply background */
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: solid transparent;
+            border-width: 8px;
+            border-right-color: #fef5d7;
         }
         form {
             margin: 20px auto;
-            max-width: 800px; /* Same width as posts */
+            max-width: 800px;
             text-align: center;
         }
         input, textarea {
-            width: calc(100% - 22px); /* Full width minus padding */
+            width: calc(100% - 22px);
             padding: 10px;
             margin: 5px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background: #fef5d7; /* Light yellow background for textarea */
+            background: #fef5d7;
         }
         button {
             padding: 10px 15px;
@@ -84,8 +84,13 @@
 </head>
 <body>
     <h1>Internet Archive</h1>
-    <div id="postsContainer"></div>
-    <form id="postForm">
+    <div id="usernamePrompt">
+        <p>Please enter your username:</p>
+        <input type="text" id="usernameInput" placeholder="Enter your username">
+        <button onclick="saveUsername()">Submit</button>
+    </div>
+    <div id="postsContainer" style="display: none;"></div>
+    <form id="postForm" style="display: none;">
         <textarea id="postContent" placeholder="Type your message here..." required></textarea><br>
         <button type="submit">Post</button>
     </form>
@@ -131,13 +136,28 @@
             }
         }
 
+        // Function to save username and display the forum
+        function saveUsername() {
+            const username = document.getElementById('usernameInput').value;
+            if (username) {
+                localStorage.setItem('username', username);
+                document.getElementById('usernamePrompt').style.display = 'none';
+                document.getElementById('postsContainer').style.display = 'block';
+                document.getElementById('postForm').style.display = 'block';
+                loadPosts(); // Load the posts once the username is set
+            } else {
+                alert("Please enter a valid username.");
+            }
+        }
+
         // Event listener for form submission
         document.getElementById('postForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const postContent = document.getElementById('postContent').value;
+            const username = localStorage.getItem('username');
 
             const formattedPost = {
-                content: postContent,
+                content: `${username}: ${postContent}`,
                 replies: []
             };
 
@@ -149,8 +169,16 @@
             loadPosts();
         });
 
-        // Load existing posts when the page is loaded
-        window.onload = loadPosts;
+        // Check if username is already stored and load posts accordingly
+        window.onload = function() {
+            const username = localStorage.getItem('username');
+            if (username) {
+                document.getElementById('usernamePrompt').style.display = 'none';
+                document.getElementById('postsContainer').style.display = 'block';
+                document.getElementById('postForm').style.display = 'block';
+                loadPosts(); // Load posts if username is already set
+            }
+        };
     </script>
 </body>
 </html>
