@@ -92,8 +92,11 @@
         <h1>Login</h1>
         <form id="loginForm">
             <input type="text" id="username" placeholder="Username" required>
+            <input type="email" id="email" placeholder="Email" required>
             <button type="submit">Sign In</button>
         </form>
+        <input type="text" id="verificationCode" placeholder="Enter your code" style="display: none;">
+        <button id="verifyButton" style="display: none;">Verify Code</button>
         <p class="login-link" id="registerLink">Register here</p>
     </div>
 
@@ -110,9 +113,12 @@
     </div>
 
     <script>
+        const users = {}; // Simulated user database
+        let verificationCode = null; // Code to verify user
+        let currentUsername = null; // Track logged in username
+
         // Check if user is logged in
         const isLoggedIn = localStorage.getItem('loggedIn');
-        const currentUsername = localStorage.getItem('currentUsername');
 
         if (isLoggedIn) {
             document.getElementById('mainContainer').style.display = 'block';
@@ -125,13 +131,36 @@
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
 
-            // Set logged in status
-            localStorage.setItem('loggedIn', true);
-            localStorage.setItem('currentUsername', username);
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('mainContainer').style.display = 'block';
-            loadPosts();
+            if (!users[username]) {
+                users[username] = { email: email, loggedIn: false }; // Register user
+            }
+
+            // Generate and send verification code
+            verificationCode = Math.floor(100000 + Math.random() * 900000);
+            alert(`Verification code sent to ${email}: ${verificationCode}`); // Simulating email sending
+
+            // Show verification input
+            document.getElementById('verificationCode').style.display = 'block';
+            document.getElementById('verifyButton').style.display = 'block';
+            currentUsername = username;
+        });
+
+        // Handle verification code
+        document.getElementById('verifyButton').addEventListener('click', function() {
+            const code = document.getElementById('verificationCode').value;
+
+            if (verificationCode && Number(code) === verificationCode) {
+                users[currentUsername].loggedIn = true;
+                localStorage.setItem('loggedIn', true);
+                localStorage.setItem('currentUsername', currentUsername);
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                loadPosts();
+            } else {
+                alert('Invalid code!');
+            }
         });
 
         // Function to load posts from local storage
