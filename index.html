@@ -16,6 +16,10 @@
             text-align: center;
             padding: 20px;
         }
+        #searchContainer {
+            text-align: center;
+            margin: 20px;
+        }
         #booksContainer {
             max-width: 800px;
             margin: 20px auto;
@@ -40,63 +44,72 @@
         button:hover {
             background-color: #45a049;
         }
+        input {
+            padding: 8px;
+            width: 300px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Online Book Archive</h1>
+    <div id="searchContainer">
+        <input type="text" id="searchInput" placeholder="Search for a book..." oninput="searchBooks()">
+    </div>
     <div id="booksContainer"></div>
 
     <script>
-        // Array of books stored in JSON format
         const books = [
             {
                 title: "Pride and Prejudice",
                 author: "Jane Austen",
                 description: "A romantic novel that critiques the British landed gentry at the end of the 18th century.",
-                content: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife..."
+                content: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife...",
             },
             {
                 title: "Moby Dick",
                 author: "Herman Melville",
                 description: "A novel about the voyage of the whaling ship Pequod, and its captain, Ahab, who is obsessed with revenge on Moby Dick.",
-                content: "Call me Ishmael. Some years ago—never mind how long precisely—I set out to sea..."
+                content: "Call me Ishmael. Some years ago—never mind how long precisely—I set out to sea...",
             },
             {
                 title: "1984",
                 author: "George Orwell",
                 description: "A dystopian social science fiction novel and cautionary tale about the dangers of totalitarianism.",
-                content: "It was a bright cold day in April, and the clocks were striking thirteen..."
-            }
+                content: "It was a bright cold day in April, and the clocks were striking thirteen...",
+            },
         ];
 
-        // Function to load books into the container
-        function loadBooks() {
+        function loadBooks(filteredBooks = books) {
             const booksContainer = document.getElementById('booksContainer');
-            books.forEach((book) => {
+            booksContainer.innerHTML = '';
+            filteredBooks.forEach((book) => {
                 const bookElement = document.createElement('div');
                 bookElement.classList.add('book');
                 bookElement.innerHTML = `
                     <strong>${book.title}</strong> by ${book.author}
                     <p>${book.description}</p>
                     <button onclick="readBook('${book.title}')">Read</button>
-                    <div id="${book.title}-content" style="display:none;">${book.content}</div>
                 `;
                 booksContainer.appendChild(bookElement);
             });
         }
 
-        // Function to display the book content
         function readBook(title) {
-            const contentElement = document.getElementById(`${title}-content`);
-            if (contentElement.style.display === "none") {
-                contentElement.style.display = "block";
-            } else {
-                contentElement.style.display = "none";
-            }
+            localStorage.setItem('currentBook', JSON.stringify(books.find(book => book.title === title)));
+            window.location.href = 'reading.html';
         }
 
-        // Load books when the window is loaded
-        window.onload = loadBooks;
+        function searchBooks() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filteredBooks = books.filter(book => 
+                book.title.toLowerCase().includes(query) ||
+                book.author.toLowerCase().includes(query)
+            );
+            loadBooks(filteredBooks);
+        }
+
+        window.onload = () => loadBooks();
     </script>
 </body>
 </html>
