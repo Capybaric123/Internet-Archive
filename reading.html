@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Book</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: radial-gradient(circle, white, lightblue, lightgreen);
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        #content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="bookTitle"></h1>
+    <div id="content"></div>
+    <button onclick="goBack()">Go Back to Main Page</button>
+
+    <script>
+        function loadBook() {
+            const currentBook = JSON.parse(localStorage.getItem('currentBook'));
+            if (currentBook) {
+                document.getElementById('bookTitle').innerText = currentBook.title;
+                document.getElementById('content').innerText = currentBook.content;
+            } else {
+                document.getElementById('content').innerText = "No book found.";
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        window.onload = loadBook;
+    </script>
+</body>
+</html>
