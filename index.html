@@ -3,78 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Internet Archive</title>
+    <title>Online Book Archive</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: radial-gradient(circle, white, yellow, orange);
-            color: #000;
+            background: radial-gradient(circle, white, lightblue, lightgreen);
+            color: #333;
         }
         h1 {
             text-align: center;
-            color: #0a0a0a;
-            background-color: rgba(192, 192, 192, 0.8);
-            padding: 10px 0;
+            padding: 20px;
         }
-        #postsContainer {
+        #booksContainer {
             max-width: 800px;
             margin: 20px auto;
             padding: 10px;
         }
-        .post {
+        .book {
             margin: 10px 0;
             padding: 10px;
             background: #fef5d7;
-            border: none;
-            border-radius: 0;
-            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
-            transition: background 0.3s;
-            cursor: pointer;
-        }
-        .post:hover {
-            background: #fcebbd;
-        }
-        .reply {
-            position: relative;
-            margin-top: 5px;
-            margin-left: 20px;
-            padding: 5px;
-            background: #fef5d7;
-            border: none;
-            border-radius: 0;
-            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
-        }
-        .reply::before {
-            content: '';
-            position: absolute;
-            left: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: solid transparent;
-            border-width: 8px;
-            border-right-color: #fef5d7;
-        }
-        form {
-            margin: 20px auto;
-            max-width: 800px;
-            text-align: center;
-            position: relative;
-        }
-        textarea {
-            width: 300px; /* Reduced width */
-            padding: 8px;
-            margin: 5px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background: #fef5d7;
-            resize: none; /* Disable resizing */
-            overflow-y: hidden; /* Hide scrollbar */
-            min-height: 40px; /* Minimum height for the text area */
         }
         button {
-            padding: 10px 15px;
+            margin-top: 10px;
+            padding: 8px 12px;
             border: none;
             border-radius: 5px;
             background-color: #4CAF50;
@@ -84,144 +40,63 @@
         button:hover {
             background-color: #45a049;
         }
-        .paperclip-btn {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-        }
-        .file-info {
-            font-size: 12px;
-            color: #555;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
-    <h1>Internet Archive</h1>
-    <div id="usernamePrompt">
-        <p>Please enter your username:</p>
-        <input type="text" id="usernameInput" placeholder="Enter your username">
-        <button onclick="saveUsername()">Submit</button>
-    </div>
-    <div id="postsContainer" style="display: none;"></div>
-    <form id="postForm" style="display: none;" onsubmit="return false;">
-        <label class="paperclip-btn" for="fileInput">📎</label>
-        <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="displayFileInfo()">
-        <textarea id="postContent" placeholder="Type your message here..." rows="2" required></textarea><br>
-        <span class="file-info" id="fileInfo"></span><br>
-        <button type="submit" onclick="submitPost()">Post</button>
-    </form>
-    <footer>
-        <p style="text-align: center;">Created by Daniil Sorokin</p>
-    </footer>
+    <h1>Online Book Archive</h1>
+    <div id="booksContainer"></div>
 
     <script>
-        // Function to load posts from local storage
-        function loadPosts() {
-            const postsContainer = document.getElementById('postsContainer');
-            postsContainer.innerHTML = '';
+        // Array of books stored in JSON format
+        const books = [
+            {
+                title: "Pride and Prejudice",
+                author: "Jane Austen",
+                description: "A romantic novel that critiques the British landed gentry at the end of the 18th century.",
+                content: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife..."
+            },
+            {
+                title: "Moby Dick",
+                author: "Herman Melville",
+                description: "A novel about the voyage of the whaling ship Pequod, and its captain, Ahab, who is obsessed with revenge on Moby Dick.",
+                content: "Call me Ishmael. Some years ago—never mind how long precisely—I set out to sea..."
+            },
+            {
+                title: "1984",
+                author: "George Orwell",
+                description: "A dystopian social science fiction novel and cautionary tale about the dangers of totalitarianism.",
+                content: "It was a bright cold day in April, and the clocks were striking thirteen..."
+            }
+        ];
 
-            const posts = JSON.parse(localStorage.getItem('posts')) || [];
-            posts.forEach((post) => {
-                const postElement = document.createElement('div');
-                postElement.classList.add('post');
-
-                const timeElement = document.createElement('div');
-                timeElement.innerHTML = `<strong>Posted at:</strong> ${new Date(post.time).toLocaleString()}`;
-                postElement.innerHTML = post.content;
-
-                postElement.appendChild(timeElement);
-
-                // If a photo is attached, display it
-                if (post.photo) {
-                    const img = document.createElement('img');
-                    img.src = post.photo;
-                    img.style.maxWidth = '100%';
-                    postElement.appendChild(img);
-                }
-
-                postsContainer.appendChild(postElement);
+        // Function to load books into the container
+        function loadBooks() {
+            const booksContainer = document.getElementById('booksContainer');
+            books.forEach((book) => {
+                const bookElement = document.createElement('div');
+                bookElement.classList.add('book');
+                bookElement.innerHTML = `
+                    <strong>${book.title}</strong> by ${book.author}
+                    <p>${book.description}</p>
+                    <button onclick="readBook('${book.title}')">Read</button>
+                    <div id="${book.title}-content" style="display:none;">${book.content}</div>
+                `;
+                booksContainer.appendChild(bookElement);
             });
         }
 
-        // Display attached file info (file name and size)
-        function displayFileInfo() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-
-            if (file) {
-                const fileSize = (file.size / 1024).toFixed(2); // File size in KB
-                const fileInfo = document.getElementById('fileInfo');
-                fileInfo.innerHTML = `Attached: ${file.name} (${fileSize} KB)`;
-            }
-        }
-
-        // Function to save username and display the forum
-        function saveUsername() {
-            const username = document.getElementById('usernameInput').value;
-            if (username) {
-                localStorage.setItem('username', username);
-                document.getElementById('usernamePrompt').style.display = 'none';
-                document.getElementById('postsContainer').style.display = 'block';
-                document.getElementById('postForm').style.display = 'block';
-                loadPosts(); // Load the posts once the username is set
+        // Function to display the book content
+        function readBook(title) {
+            const contentElement = document.getElementById(`${title}-content`);
+            if (contentElement.style.display === "none") {
+                contentElement.style.display = "block";
             } else {
-                alert("Please enter a valid username.");
+                contentElement.style.display = "none";
             }
         }
 
-        // Function to submit a post
-        function submitPost() {
-            const postContent = document.getElementById('postContent').value;
-            const username = localStorage.getItem('username');
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-
-            if (postContent.trim()) { // Check if the post content is not empty
-                const formattedPost = {
-                    content: `${username}: ${postContent}`,
-                    time: new Date(),
-                    photo: file ? URL.createObjectURL(file) : null // Attach photo if present
-                };
-
-                const posts = JSON.parse(localStorage.getItem('posts')) || [];
-                posts.push(formattedPost);
-                localStorage.setItem('posts', JSON.stringify(posts));
-
-                document.getElementById('postContent').value = ''; // Clear post content
-                document.getElementById('fileInput').value = ''; // Clear file input
-                document.getElementById('fileInfo').innerHTML = ''; // Clear file info
-
-                loadPosts(); // Reload posts to display the new post
-            }
-        }
-
-        // Make pressing "Enter" submit the post
-        document.getElementById('postContent').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Prevents adding a newline
-                submitPost();
-            }
-        });
-
-        // Auto-expand the text area as you type
-        document.getElementById('postContent').addEventListener('input', function() {
-            this.style.height = 'auto'; // Reset height to auto to allow shrinking
-            this.style.height = this.scrollHeight + 'px'; // Set height based on scrollHeight
-        });
-
-        // Check if username is already stored and load posts accordingly
-        window.onload = function() {
-            const username = localStorage.getItem('username');
-            if (username) {
-                document.getElementById('usernamePrompt').style.display = 'none';
-                document.getElementById('postsContainer').style.display = 'block';
-                document.getElementById('postForm').style.display = 'block';
-                loadPosts(); // Load posts if username is already set
-            }
-        };
+        // Load books when the window is loaded
+        window.onload = loadBooks;
     </script>
 </body>
 </html>
